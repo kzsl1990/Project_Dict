@@ -2,6 +2,17 @@ import socket
 import sys
 import time
 
+import Dict
+
+# 登陆成功，可查询单词
+def working():
+    while True:
+        word = input('word: ')
+        if not word:
+            break
+        interpret = Dict.search_word(word)
+        print('interpret: ', interpret)
+
 client = socket.socket()
 HOST = '172.16.15.29'
 PORT = 8888
@@ -27,6 +38,14 @@ while True:
         password = input('please input your password:')
         msg = 'signin#%s#%s' % (username, password)
         client.send(msg.encode())
+        data = client.recv(1024).decode()
+        if data == 'Success':
+            print('Welcome!!')
+            working()
+            break
+        elif data == 'Failed':
+            print('Your password was wrong, please try again!!')
+            continue
 
     elif sign == 'U':
         username = input('please set your username:')

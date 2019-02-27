@@ -30,7 +30,14 @@ def reset_info():
     cur.close()
     db.close()  
 
-# reset_info()
-# restore_info('kzsl1990', '89085012')
-# restore_info('kzsl1991')
-# restore_info('kzsl1992', '89085012')
+# 查询用户信息（登录验证）
+def match_info(username)：
+    db = pymysql.connect('172.16.10.124', 'root', 'root', database = 'MKWEB_PY', charset='utf8')
+    cur = db.cursor()
+    selectinfo = "select password from UserInfo where UserId = '%s';" % username
+    cur.execute(selectinfo)
+    password = cur.fetchone()
+    db.commit()
+    cur.close()
+    db.close()  
+    return password[0]
