@@ -16,6 +16,7 @@ def restore_info(username, password = '00000000'):
     insertinfo = "insert into UserInfo values ('%s', '%s');" % (username, password)
     cur.execute(insertinfo)
     db.commit()
+    print('restore userinfo succeed')
     cur.close()
     db.close()  
 
@@ -31,7 +32,7 @@ def reset_info():
     db.close()  
 
 # 查询用户信息（登录验证）
-def match_info(username)：
+def match_info(username):
     db = pymysql.connect('172.16.10.124', 'root', 'root', database = 'MKWEB_PY', charset='utf8')
     cur = db.cursor()
     selectinfo = "select password from UserInfo where UserId = '%s';" % username

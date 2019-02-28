@@ -24,7 +24,7 @@ with open(r'.\dict.txt') as f:
         interpret = interpret.replace("\'", "\'\'")
         interpret = interpret.replace("\\", "\\\\")
 
-        insert_info = '''insert into DictTable values (%d, '%s', '%s');''' % (i, word, interpret)
+        insert_info = '''insert into DictTable values (0, '%s', '%s');''' % (word, interpret)
         # print(insert_info)
 
         cur.execute(insert_info)

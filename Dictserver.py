@@ -1,6 +1,8 @@
-import socket
+# import socket
+from socket import * 
 import sys
-import signal
+# import signal 
+from signal import * 
 import threading
 
 import UserData
@@ -8,8 +10,8 @@ import UserData
 
 def Handler(confd, addr):
     while True:
-        logindata = confd.request.recv(1024).decode()
-        logindata = data.split('#')
+        logindata = confd.recv(1024).decode()
+        logindata = logindata.split('#')
         if logindata[0] == 'signup':
             username = logindata[1]
             password = logindata[2]
@@ -26,25 +28,22 @@ def Handler(confd, addr):
                 msg = 'Failed'
                 confd.send(msg.encode())
 
-
-
-
 HOST = '172.16.15.29'
 PORT = 8888
 ADDR = (HOST, PORT)
 
-server = socket.socket(AF_INET,SOCK_STREAM)
+server = socket(AF_INET, SOCK_STREAM)
 server.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 server.bind(ADDR)
 server.listen(30)
 
 print('Dict start, waiting for connection...')
 # 处理子进程退出
-signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+# signal(SIGCHLD, SIG_IGN)
 T = []
 while True:
     confd, addr = server.accept()
-    print('%s connected...' % addr)
+    print(addr, 'connected...')
     t = threading.Thread(target = Handler, args = (confd, addr))
     T.append(t)
     t.start()
