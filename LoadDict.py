@@ -2,18 +2,19 @@
 import pymysql
 import re
 
+# 连接到MySQL数据库，MKWEB_PY
 db = pymysql.connect('172.16.10.124', 'root', 'root', database = 'MKWEB_PY', charset='utf8')
 cur = db.cursor()
 
+# 重载字典表，若已存在则删除重新加载
 cur.execute("drop table if exists DictTable;")
 cur.execute("create table DictTable \
     (id int primary key auto_increment, \
     word char(32) not null, \
     interpret text not null)charset=utf8;")
-i = 0
+
 with open(r'.\dict.txt') as f:
     while True:
-        i += 1
         line = f.readline()
         if not line:
             break
