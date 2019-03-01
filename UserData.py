@@ -8,12 +8,12 @@ def restore_info(username, password = '00000000'):
     db = pymysql.connect('172.16.10.124', 'root', 'root', database = 'MKWEB_PY', charset='utf8')
     cur = db.cursor()
 
-    cur.execute("create table if not exists UserInfo \
-        (id int primary key auto_increment, \
-        UserId varchar(32) not null, \
-        password char(16), \
-        unique(UserId))charset=utf8;")
-    insertinfo = "insert into UserInfo values ('%s', '%s');" % (username, password)
+    # cur.execute("create table if not exists UserInfo \
+    #     (id int primary key auto_increment, \
+    #     UserId varchar(32) not null, \
+    #     password char(16), \
+    #     unique(UserId))charset=utf8;")
+    insertinfo = "insert into UserInfo values (0, '%s', '%s');" % (username, password)
     cur.execute(insertinfo)
     db.commit()
     print('restore userinfo succeed')
@@ -26,7 +26,14 @@ def restore_info(username, password = '00000000'):
 def reset_info():
     db = pymysql.connect('172.16.10.124', 'root', 'root', database = 'MKWEB_PY', charset='utf8')
     cur = db.cursor()
-    cur.execute("delete from UserInfo;")
+
+    cur.execute("drop table if exists UserInfo;")
+    cur.execute("create table UserInfo \
+    (id int primary key auto_increment, \
+    UserId varchar(32) not null, \
+    password char(16), \
+    unique(UserId))charset=utf8;")
+
     db.commit()
     cur.close()
     db.close()  
@@ -41,4 +48,8 @@ def match_info(username):
     db.commit()
     cur.close()
     db.close()  
-    return password[0]
+    
+    if not password:
+        return
+    else:
+        return password[0]
