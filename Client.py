@@ -6,14 +6,12 @@ import pymysql
 # 查询单词
 def search_word(word):
     '''输入：单词， 返回：释义或空值'''
-    # db = pymysql.connect('172.16.10.124', 'root', 'root', database = 'MKWEB_PY', charset='utf8')
-    # cur = db.cursor()
+
     selectinfo = "select interpret from DictTable where word = \'%s\';" % word
     cur.execute(selectinfo)
     interpret = cur.fetchone()
     db.commit()
-    # cur.close()
-    # db.close()  
+
     if not interpret:
         return
     else:
@@ -21,29 +19,25 @@ def search_word(word):
 
 # 存入单次查询记录
 def restore_info(username, word):
-    # db = pymysql.connect('172.16.10.124', 'root', 'root', database = 'MKWEB_PY', charset='utf8')
-    # cur = db.cursor()
 
-    # cur.execute("create table if not exists History \
-    #     (Id int primary key auto_increment, \
-    #     UserId char(20), \
-    #     word char(20), \
-    #     time datetime, \
-    #     index(UserId))charset=utf8;")
     insertinfo = "insert into History values (0, '%s', '%s', now());" % (username, word)
     cur.execute(insertinfo)
     db.commit()
-    # cur.close()
-    # db.close()  
+
 
 # 查询历史
 def show_record(username):
-    pass
+    selectinfo = "select * from History where UserId = \'%s\';" % username
+    cur.execute(selectinfo)
+    record = cur.fetchall()
+    db.commit()
+    for re in record:
+        print('%s, %10s, %s' % (re[1], re[2], re[3]))
 
 # 登陆成功，工作状态，可查询单词
 def working():
     while True:
-        word = input('[word: ]\n<<<  ')
+        word = input('[请输入单词: ]\n<<<  ')
         # 特殊指令，终止工作状态，返回指令
         if (word == '#Q') or (word == '#L') or (word == '#H'):
             break
@@ -54,10 +48,10 @@ def working():
         interpret = search_word(word)
         # 未查询到结果
         if not interpret:
-            print('Didn\'t find this word, please make sure your spelling right')
+            print('未查询到此单词')
             continue
         restore_info(username, word)
-        print('[Interpret: ]\n>>>  ', interpret)
+        print('[单词释义: ]\n>>>  ', interpret)
     return word
 
 # 定义全局变量，创建客户端套接字
@@ -82,11 +76,11 @@ print('|        Sign In or Sign Up        |')
 print('+----------------------------------+')
 
 while True:
-    sign = input('Sign In(I) or Sign Up(U):')
+    sign = input('登录(I) or 注册(U):')
     # 登录
     if sign == 'I':
-        username = input('[Please input your username:]\n<<<  ')
-        password = input('[Please input your password:]\n<<<  ')
+        username = input('[请输入用户名:]\n<<<  ')
+        password = input('[请输入密码:]\n<<<  ')
         msg = 'signin#%s#%s' % (username, password)
         client.send(msg.encode())
         data = client.recv(1024).decode()
@@ -95,7 +89,7 @@ while True:
     # 连接数据库
             db = pymysql.connect('172.16.10.124', 'root', 'root', database = 'MKWEB_PY', charset='utf8')
             cur = db.cursor()
-            print('[#Q for quit, #L for login page, #H for history]')
+            print('[#Q 退出, #L 注销, #H 查询历史]')
             # 工作状态
             state = working()
             if state == '#L':
@@ -103,32 +97,31 @@ while True:
                 continue
             elif state == '#Q':
                 print(['Bye'], username)
-# 退出方式1：查询状态输入#Q
-    # 关闭数据库
                 cur.close()
                 db.close()
                 break
-            elif working() == '#H':
+            elif state == '#H':
                 show_record(username)
+                continue
 
         elif data == 'False':
-            print('[Error: ]Wrong password')
+            print('[Error: ]密码错误')
         else:
-            print('[Error: ]Your password was wrong, please try again!!')
+            print('[Error: ]请重试')
         continue
     # 注册
     elif sign == 'U':
-        username = input('[Please set your username:]\n<<<  ')
-        password = input('[Please set your password:]\n<<<  ')
-        password2 = input('[Please repeat your password:]\n<<<  ')
+        username = input('[请设置用户名:]\n<<<  ')
+        password = input('[请设置密码:]\n<<<  ')
+        password2 = input('[请重新输入密码:]\n<<<  ')
         if password != password2:
-            print('[Error: ]password don\'t match')
+            print('[Error: ]两次密码不一致')
             continue
         msg = 'signup#%s#%s' % (username, password)
         client.send(msg.encode())
         data = client.recv(1024).decode()
         if data == 'signup#success':
-            print('Sign up successful')
+            print('注册成功')
 
 # 退出方式2：登录界面输入Q
     # 关闭数据库
@@ -138,7 +131,7 @@ while True:
         break
         
     else:
-        print('[Error: ]Wrong input!!')
+        print('[Error: ]输入有误')
         continue
 
 # 循环中止-客户端退出
